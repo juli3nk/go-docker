@@ -3,20 +3,19 @@ package docker
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 )
 
 func (c *Config) Events(filterType events.Type) (<-chan events.Message, <-chan error) {
-	var eventsOpts types.EventsOptions
+	var opts events.ListOptions
 
 	if filterType != "" {
 		filterE := filters.NewArgs()
 		filterE.Add("type", string(filterType))
 
-		eventsOpts.Filters = filterE
+		opts.Filters = filterE
 	}
 
-	return c.Client.Events(context.Background(), eventsOpts)
+	return c.Client.Events(context.Background(), opts)
 }
