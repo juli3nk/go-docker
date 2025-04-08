@@ -9,7 +9,7 @@ type Config struct {
 }
 
 func NewDockerClient() (*Config, error) {
-	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation())
+	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation(), client.WithHostFromEnv())
 	if err != nil {
 		return nil, err
 	}

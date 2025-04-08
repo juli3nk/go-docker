@@ -8,15 +8,11 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func ContainerList(names []string) ([]string, error) {
+func (c *Config) ContainerList(names []string) ([]string, error) {
 	var args []filters.KeyValuePair
 	var result []string
 
-	apiClient, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation(), client.WithHostFromEnv())
-	if err != nil {
-		return nil, err
-	}
-	defer apiClient.Close()
+	defer c.Close()
 
 	for _, name := range names {
 		args = append(args, filters.Arg("name", name))
@@ -26,7 +22,7 @@ func ContainerList(names []string) ([]string, error) {
 		Filters: filters.NewArgs(args...),
 	}
 
-	containers, err := apiClient.ContainerList(context.Background(), listOpts)
+	containers, err := c.Client.ContainerList(context.Background(), listOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -38,9 +34,32 @@ func ContainerList(names []string) ([]string, error) {
 	return result, nil
 }
 
-func (c *Config) ContainerRun() error {
-	// c.Client.ContainerCreate(context.Background())
-	// c.Client.ContainerStart(context.Background())
+func (c *Config) ContainerInspect(containerID string) (container.InspectResponse, error) {
+	response, err := c.Client.ContainerInspect(context.Background(), containerID)
+	if err != nil {
+		return container.InspectResponse{}, err
+	}
+
+	return response, nil
+}
+
+func (c *Config) ContainerRun(
+	config *container.Config,
+	hostConfig *container.HostConfig,
+	networkingConfig *network.NetworkingConfig,
+	platform *ocispec.Platform,
+	containerName string,
+) error {
+	ctx := context.Background()
+
+	createResponse, err := c.Client.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Client.ContainerStart(ctx, createResponse.ID, container.StartOptions{}); err != nil {
+		return err
+	}
 
 	return nil
 }
