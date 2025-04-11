@@ -8,6 +8,15 @@ import (
 	"github.com/docker/docker/client"
 )
 
+func (c *Config) ContainerInspect(containerID string) (container.InspectResponse, error) {
+	response, err := c.Client.ContainerInspect(context.Background(), containerID)
+	if err != nil {
+		return container.InspectResponse{}, err
+	}
+
+	return response, nil
+}
+
 func (c *Config) ContainerList(names []string) ([]string, error) {
 	var args []filters.KeyValuePair
 	var result []string
@@ -34,15 +43,6 @@ func (c *Config) ContainerList(names []string) ([]string, error) {
 	return result, nil
 }
 
-func (c *Config) ContainerInspect(containerID string) (container.InspectResponse, error) {
-	response, err := c.Client.ContainerInspect(context.Background(), containerID)
-	if err != nil {
-		return container.InspectResponse{}, err
-	}
-
-	return response, nil
-}
-
 func (c *Config) ContainerRun(
 	config *container.Config,
 	hostConfig *container.HostConfig,
@@ -64,10 +64,26 @@ func (c *Config) ContainerRun(
 	return nil
 }
 
-func (c *Config) ContainerStop() error {
+func (c *Config) ContainerStop(containerIdOrName string) error {
+	if err := c.Client.ContainerStop(
+		context.Background(),
+		containerIdOrName,
+		container.StopOptions{},
+	); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (c *Config) ContainerRemove() error {
+func (c *Config) ContainerRemove(containerIdOrName string, force bool) error {
+	if err := c.Client.ContainerRemove(
+		context.Background(),
+		containerIdOrName,
+		container.RemoveOptions{Force: force},
+	); err != nil {
+		return err
+	}
+
 	return nil
 }
