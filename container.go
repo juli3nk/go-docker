@@ -49,19 +49,19 @@ func (c *Config) ContainerRun(
 	networkingConfig *network.NetworkingConfig,
 	platform *ocispec.Platform,
 	containerName string,
-) error {
+) (string, error) {
 	ctx := context.Background()
 
 	createResponse, err := c.Client.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err := c.Client.ContainerStart(ctx, createResponse.ID, container.StartOptions{}); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return createResponse.ID , nil
 }
 
 func (c *Config) ContainerStop(containerIdOrName string) error {
