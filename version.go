@@ -1,13 +1,11 @@
 package docker
 
-func Version() (string, error) {
-	apiClient, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation(), client.WithHostFromEnv())
-	if err != nil {
-		return "", err
-	}
-	defer apiClient.Close()
+import (
+	"context"
+)
 
-	sv, err := apiClient.ServerVersion(context.Background())
+func (c *Config) Version() (string, error) {
+	sv, err := c.Client.ServerVersion(context.Background())
 	if err != nil {
 		return "", err
 	}

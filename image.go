@@ -2,12 +2,10 @@ package docker
 
 import (
 	"context"
-	"fmt"
+	"encoding/base64"
 	"io"
-	"os"
 
 	"github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/client"
 )
 
 func (c *Config) ImagePull(name, username, password string) error {
